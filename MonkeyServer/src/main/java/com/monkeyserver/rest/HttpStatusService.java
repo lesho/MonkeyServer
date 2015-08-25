@@ -1,5 +1,6 @@
 package com.monkeyserver.rest;
 
+import com.monkeyserver.utils.ConfHolder;
 import com.monkeyserver.utils.HttpCodes;
 import com.monkeyserver.utils.HttpCodesMngr;
 
@@ -9,6 +10,8 @@ import javax.ws.rs.core.Response;
 
 @Path("/status")
 public class HttpStatusService {
+
+    ConfHolder configuration = ConfHolder.getInstance();
 
     @GET
     @Path("/list")
@@ -22,8 +25,14 @@ public class HttpStatusService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getMonkeyStatus() {
         HttpCodesMngr httpCodes = new HttpCodesMngr();
-        Integer randomCode = httpCodes.getRandomCode();
+        int randomCode;
+
+        if (configuration.getBoolean("assignedOnlyHttpCode")) {
+            randomCode = httpCodes.getAssignedOnlyHttpCode();
+        } else randomCode = httpCodes.getRandomCode();
+
         String statusMessage = httpCodes.getStatusMessage(randomCode);
         return Response.status(randomCode).entity(statusMessage).build();
     }
+
 }
